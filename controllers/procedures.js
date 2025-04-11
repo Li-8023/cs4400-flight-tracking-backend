@@ -119,3 +119,178 @@ exports.grantOrRevokePilotLicense = async (req, res) => {
     });
   }
 };
+
+//offer_flight
+exports.offerFlight = async (req, res) => {
+  try {
+    const {
+      flightID,
+      routeID,
+      support_airline,
+      support_tail,
+      progress,
+      next_time,
+      cost,
+    } = req.body;
+
+    const [result] = await db.query("CALL offer_flight(?, ?, ?, ?, ?, ?, ?)", [
+      flightID,
+      routeID,
+      support_airline,
+      support_tail,
+      progress,
+      next_time,
+      cost,
+    ]);
+
+    res.status(200).json({ message: "Flight offered successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to offer flight",
+      details: sqlMessage,
+    });
+  }
+};
+
+
+//retire_flight
+exports.retireFlight = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL retire_flight(?)", [flightID]);
+
+    res.status(200).json({ message: "Flight retired successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to retire flight",
+      details: sqlMessage,
+    });
+  }
+};
+
+//flight_landing
+exports.flightLanding = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL flight_landing(?)", [flightID]);
+
+    res.status(200).json({ message: "Flight landed successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to land flight",
+      details: sqlMessage,
+    });
+  }
+};
+
+//flight_takeoff
+exports.flightTakeoff = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL flight_takeoff(?)", [flightID]);
+
+    res.status(200).json({ message: "Flight takeoff processed", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to process flight takeoff",
+      details: sqlMessage,
+    });
+  }
+};
+
+//passengers_board
+exports.passengersBoard = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL passengers_board(?)", [flightID]);
+
+    res
+      .status(200)
+      .json({ message: "Passengers boarded successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to board passengers",
+      details: sqlMessage,
+    });
+  }
+};
+
+//passengers_disembark
+exports.passengersDisembark = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL passengers_disembark(?)", [flightID]);
+
+    res
+      .status(200)
+      .json({ message: "Passengers disembarked successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to disembark passengers",
+      details: sqlMessage,
+    });
+  }
+};
+
+//assign_pilot
+exports.assignPilot = async (req, res) => {
+  try {
+    const { flightID, personID } = req.body;
+
+    const [result] = await db.query("CALL assign_pilot(?, ?)", [
+      flightID,
+      personID,
+    ]);
+
+    res.status(200).json({ message: "Pilot assigned successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to assign pilot",
+      details: sqlMessage,
+    });
+  }
+};
+
+exports.recycleCrew = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL recycle_crew(?)", [flightID]);
+
+    res.status(200).json({ message: "Crew recycled successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to recycle crew",
+      details: sqlMessage,
+    });
+  }
+};
+
+exports.retireFlight = async (req, res) => {
+  try {
+    const { flightID } = req.body;
+
+    const [result] = await db.query("CALL retire_flight(?)", [flightID]);
+
+    res.status(200).json({ message: "Flight retired successfully", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Failed to retire flight",
+      details: sqlMessage,
+    });
+  }
+};
