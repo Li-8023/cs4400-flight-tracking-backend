@@ -294,3 +294,16 @@ exports.retireFlight = async (req, res) => {
     });
   }
 };
+
+exports.simulationCycle = async (req, res) => {
+  try {
+    const [result] = await db.query("CALL simulation_cycle()");
+    res.status(200).json({ message: "Simulation cycle completed", result });
+  } catch (err) {
+    const sqlMessage = err.sqlMessage || err.message;
+    res.status(400).json({
+      error: "Simulation cycle failed",
+      details: sqlMessage,
+    });
+  }
+};

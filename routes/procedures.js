@@ -15,6 +15,6 @@ router.post("/passengers_disembark", proceduresController.passengersDisembark);
 router.post("/assign_pilot", proceduresController.assignPilot);
 router.post("/recycle_crew", proceduresController.recycleCrew);
 router.post("/retire_flight", proceduresController.retireFlight);
-
+router.post("/simulation_cycle", proceduresController.simulationCycle);
 
 module.exports = router;
