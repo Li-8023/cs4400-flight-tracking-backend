@@ -1,6 +1,18 @@
 const db = require("../db/db");
 
 //add_airplane
+// helper
+const parseOrNull = (val) => (val === "" || val === undefined ? null : val);
+const parseIntOrZero = (val) =>
+  val === "" || val === undefined ? 0 : parseInt(val, 10);
+const parseBoolOrNull = (val) => {
+  if (val === "" || val === undefined || val === null) return null;
+  if (val === "1" || val === 1 || val === true || val === "true") return 1;
+  if (val === "0" || val === 0 || val === false || val === "false") return 0;
+  return null;
+};
+
+
 exports.addAirplane = async (req, res) => {
   try {
     const {
@@ -15,30 +27,34 @@ exports.addAirplane = async (req, res) => {
       neo,
     } = req.body;
 
+    const params = [
+      airlineID, // NOT NULL
+      tail_num, // NOT NULL
+      parseIntOrZero(seat_capacity), // int, default to 0 if not set
+      parseIntOrZero(speed), // int, default to 0 if not set
+      parseOrNull(locationID), // nullable
+      parseOrNull(plane_type), // nullable
+      parseBoolOrNull(maintenanced), // nullable boolean: 0, 1 or null
+      parseOrNull(model), // nullable
+      parseBoolOrNull(neo), // nullable boolean
+    ];
+
     const [result] = await db.query(
       "CALL add_airplane(?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        airlineID,
-        tail_num,
-        seat_capacity,
-        speed,
-        locationID,
-        plane_type,
-        maintenanced,
-        model,
-        neo,
-      ]
+      params
     );
 
     res.json({ message: "Airplane added successfully", result });
   } catch (err) {
     const sqlMessage = err.sqlMessage || err.message;
     res.status(400).json({
-      error: "Failed to add airport",
+      error: "Failed to add airplane",
       details: sqlMessage,
     });
   }
 };
+
+
 
 //add_airport
 exports.addAirport = async (req, res) => {
@@ -46,13 +62,17 @@ exports.addAirport = async (req, res) => {
     const { airportID, airport_name, city, state, country, locationID } =
       req.body;
 
+    // 将空字符串转为 null（否则传入存储过程会报错）
+    const parsedLocationID =
+      !locationID || locationID.trim() === "" ? null : locationID.trim();
+
     const [result] = await db.query("CALL add_airport(?, ?, ?, ?, ?, ?)", [
       airportID,
       airport_name,
       city,
       state,
       country,
-      locationID,
+      parsedLocationID,
     ]);
 
     res.json({ message: "Airport added successfully", result });
@@ -65,10 +85,11 @@ exports.addAirport = async (req, res) => {
   }
 };
 
+
 //add_person
 exports.addPerson = async (req, res) => {
   try {
-    const {
+    let {
       personID,
       first_name,
       last_name,
@@ -78,6 +99,14 @@ exports.addPerson = async (req, res) => {
       miles,
       funds,
     } = req.body;
+
+    last_name = last_name?.trim() || null;
+    taxID = taxID?.trim() || null;
+    locationID = locationID?.trim();
+    experience = isNaN(experience) ? null : experience;
+    miles = isNaN(miles) ? null : miles;
+    funds = isNaN(funds) ? null : funds;
+
 
     const [result] = await db.query("CALL add_person(?, ?, ?, ?, ?, ?, ?, ?)", [
       personID,
@@ -99,6 +128,7 @@ exports.addPerson = async (req, res) => {
     });
   }
 };
+
 
 //grant_or_revoke_pilot_license 
 exports.grantOrRevokePilotLicense = async (req, res) => {
@@ -297,8 +327,17 @@ exports.retireFlight = async (req, res) => {
 
 exports.simulationCycle = async (req, res) => {
   try {
-    const [result] = await db.query("CALL simulation_cycle()");
-    res.status(200).json({ message: "Simulation cycle completed", result });
+    const [rows] = await db.query("CALL simulation_cycle()");
+    const result = rows?.[0]; 
+
+    if (!result || !result.flight_id) {
+      throw new Error("No flight processed");
+    }
+
+    res.status(200).json({
+      message: `Flight ${result.flight_id} ${result.action}`,
+      data: result,
+    });
   } catch (err) {
     const sqlMessage = err.sqlMessage || err.message;
     res.status(400).json({
