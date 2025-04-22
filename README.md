@@ -62,3 +62,8 @@ In summary, this application emphasizes a thin backend controller with fat datab
 
 ## Contributor
 Li He and Fanshi Meng were working on the backend
+
+## Frontend Repo
+``` bash
+https://github.com/CrstalLi02/Airline_Management_System.git
+```
