@@ -65,5 +65,5 @@ Li He and Fanshi Meng were working on the backend
 
 ## Frontend Repo
 ``` bash
-https://github.com/CrstalLi02/Airline_Management_System.git
+https://github.com/CrstalLi02/Airline_Management_System/tree/master
 ```
